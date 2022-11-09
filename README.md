@@ -50,12 +50,12 @@ assert torch.allclose(y, y_decoded) # Assert passes in eval mode!
 
 ### Utils: Decimal-Binary Conversion
 ```python
-from bitcodes_pytorch import to_decimal, to_binary
+from bitcodes_pytorch import to_decimal, to_bits
 
 indices = to_decimal(bits)
 # tensor([[ 0, 11,  9,  8,  7,  2]])
 
-bits = to_binary(indices, num_bits=4)
+bits = to_bits(indices, num_bits=4)
 
 """
 bits = tensor([[
