@@ -11,14 +11,13 @@ pip install bitcodes-pytorch
 
 ## Usage
 
-### Quantize
 ```python
 from bitcodes_pytorch import Bitcodes
 
 bitcodes = Bitcodes(
-    features=8,
-    num_bits=4,
-    temperature=10,
+    features=8,     # Number of features per vector
+    num_bits=4,     # Number of bits per vector
+    temperature=10, # Gumbel softmax training temperature
 )
 
 # Set to eval during inference to make deterministic
@@ -42,14 +41,14 @@ bits = tensor([[
 """
 ```
 
-### Recover Output from Bits
+### Dequantize
 ```python
 y_decoded = bitcodes.from_bits(bits)
 
 assert torch.allclose(y, y_decoded) # Assert passes in eval mode!
 ```
 
-### Decimal-Binary Conversion
+### Utils: Decimal-Binary Conversion
 ```python
 from bitcodes_pytorch import to_decimal, to_binary
 
@@ -72,4 +71,8 @@ bits = tensor([[
 
 ## Explaination
 
-TODO
+Current vector quantization methods (e.g. [VQ-VAE](https://arxiv.org/abs/1711.00937#), [RQ-VAE](https://arxiv.org/abs/2203.01941)) either use a single large codebook or multiple smaller codebooks that are used as residuals. Residuals allow for an exponential increase in the number of possible combinations while keeping the number of total codebook items reasonably small by overlapping many codebook elements. If we let $C$ be the codebook size, and $R$ the number of residuals, we can get a theoretical maximum of $C^R$ combinations, assuming that all residuals have the same codebook size. The total number of codebook elements, which is proportional to parameter count, is instead $C\cdot R$. Thus it makes sense to keep $C$ as small as possible to maintain the parameter count reasonably small, while increasing $R$ to exploit the exponential number of combinations.
+
+Here we use $C=2$ making the code binary, where $R=$`num_bits` can be freely chosen. The residuals are overlapped to get the output, instead of quantizing the difference - this allows to remove the residual loop and quantize with large $R$ in parallel.
+
+Another nice property of bitcodes is that we can choose to quantize the bit matrix to integers in different ways after training (e.g. convert to decimal one or two rows at a time).
