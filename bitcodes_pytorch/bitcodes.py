@@ -19,7 +19,7 @@ def to_decimal(bits: Tensor) -> Tensor:
     return torch.sum(bitmask * bits, dim=-1)
 
 
-""" Bincodes """
+""" Bitcodes """
 
 
 class Bitcodes(nn.Module):
